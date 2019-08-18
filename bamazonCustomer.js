@@ -1,104 +1,128 @@
-// connect to the database
-var mysql = require("mysql");
-var inquirer = ("inquirer");
-// insert a table
+const mysql = require('mysql');
+const colors = require('colors');
+const inquirer = require('inquirer');
+const chalk = require('chalk');
+const AsciiTable = require('ascii-table');
 
-// create connection
-var connection = mysql.createConnection({
-  host: "localhost",
+const connection = mysql.createConnection({
+  host: 'localhost',
+  port: '3306',
+  user: 'root',
+  password: 'Ghar@309',
+  database: 'bamazon_db'
+})
 
-  // Your port; if not 3306
-  port: 3306,
-
-  // Your username
-  user: "root",
-
-  // Your password
-  password: "Ghar@309",
-  database: "bamazone_db"
-});
+startApp();
 
 
-connection.query("SELECT * FROM products", function (err, res) {
-  if (err) throw err;
-  console.log("\n======================\n")
-  console.log("WELCOME TO MY ONLINE BUY PORTAL");
-  console.log(res);
-  console.log("\n======================\n")
+function startApp() {
+  let table = new AsciiTable();
+  table.setHeading('ID', 'Description', 'Price', 'Quantity');
 
-
-
-
-  // set the inquirer to prompt the input information
-
-  function showInput() {
-    inquirer
-      .prompt({
-
-        type: "input",
-        message: "What is the Item_id of the product you would like to buy?",
-        name: "product",
-        filter: Number
-      },
-
-        {
-          type: "input",
-          message: "How many units of this product would you like to buy?",
-          name: "quantity",
-          filter: Number
-        }
-      ).then(function (res) {
-        var item2 = res.product;
-        var quantity2 = res.quantity;
-        connection.query("SELECT * FROM products WHERE ?", { item_id: item2 }, function (err, res) {
-          if (err) throw err;
-
-          if (Response.length === 0) {
-            console.log("ERROR: Select a valid Item ID from the products list.");
-            console.log(res);
-          } else {
-            // response if quantity available in stock
-            var productRes = response[0];
-            if (quantity2 <= productRes.stock_quantity) {
-              console.log("We have sufficient stock....placing your order!");
-
-              // update the inventory
-              var updateInventory = "UPDATE products SET stock_quantity = " + (productRes.stock_quantity - quantity2) + "WHERE item_id = " + item2;
-
-              connection.query(updateInventory, function (err, data) {
-                if (err) throw err;
-                console.log("your order has placed! your total is $" + productRes.price * quantity2);
-                console.log("Thank you for shopping! Come Again!");
-                console.log("\n===================\n")
-                continueShopping();
-              })
-            } else {
-              console.log("sorry!, item's not stock to place order.\n" + "please buy another item.\n");
-              continueShopping();
-            }
-          }
-        })
-      })
-  }
-  showInput();
-  // ask if they want to continue shopping
-  function continueShopping() {
-    inquirer.prompt(
-      {
-        type: "confirm",
-        message: "Would you like to continueShopping?",
-        name: "conform"
-      }
-    ).then(function (res) {
-      if (res.confirm) {
-        console.log("\n======================\n")
-
-        console.log(res);
-        console.log("\n======================\n")
-      } else {
-        console.log("Thank you for shopping!");
-        connection.end();
-      }
+  connection.query('SELECT * FROM products WHERE quantity>0', (err, res) => {
+    console.log(`\n       Items available for purchase:`.cyan);
+    res.forEach((product) => {
+      table.addRow(product.id, product.description, product.price, product.quantity);
     })
-  }
-});
+    console.log(chalk.green(`${table.toString()}\n`));
+
+    setTimeout(pickItem, 700);
+  });
+}
+
+
+function pickItem() {
+  inquirer.prompt([
+    {
+      name: `id`,
+      message: `Type in the ID number of the item you'd like to buy:`.cyan,
+      validate: (value) => !isNaN(value)
+    },
+    {
+      name: `qty`,
+      message: `How many units would you like to buy?`.cyan,
+      validate: (value) => !isNaN(value)
+    }
+  ]).then((ans) => {
+    itemPicked(ans.id, ans.qty);
+  })
+}
+
+
+function itemPicked(id, qty) {
+  connection.query(`SELECT * FROM products WHERE id=${id}`, (err, res) => {
+    if (err) {
+      console.log(`\nYou've encountered an error.`.red);
+      restart();
+    }
+
+    if (qty > res[0].quantity) {
+      console.log(`\nInsufficient Quantity, try again...\n`.red);
+      setTimeout(pickItem, 500);
+    } else {
+      if (qty == 1) {
+        console.log(`\nYou have selected ${qty} ${res[0].description} for $${res[0].price}.`.green);
+        let total = qty * res[0].price;
+        console.log(`Your total amount due is: $${total}.\n`);
+        buyItem(id, res[0].quantity, qty, total, res[0].product_sales);
+      } else if (qty > 1) {
+        console.log(`\nYou have selected ${qty} ${res[0].description} for $${res[0].price} each.`.green);
+        let total = qty * res[0].price;
+        console.log(`Your total amount due is: $${total}.\n`);
+        buyItem(id, res[0].quantity, qty, total, res[0].product_sales);
+      }
+    }
+  });
+}
+
+
+function buyItem(id, itemQty, customerQty, total, productSales) {
+  const newQty = itemQty - customerQty;
+  const newSales = productSales + total;
+  inquirer.prompt([
+    {
+      name: `payment`,
+      message: `Please Enter your Credit Card #`.cyan,
+      validate: (value) => !isNaN(value)
+    },
+    {
+      name: `confirm`,
+      message: `Are you sure you want to make this purchase?`.cyan,
+      type: 'confirm'
+    }
+  ]).then((ans) => {
+    if (ans.confirm) {
+      console.log(`\nCongratulations your new item successfully purchased.\n`.green);
+      updateDataQTY(id, newQty, total, newSales);
+      setTimeout(restart, 1000);
+    } else {
+      console.log(`\nOooops.\n`.green);
+      restart();
+    }
+  })
+}
+
+
+function restart() {
+  inquirer.prompt([
+    {
+      name: 'confirm',
+      message: 'End program?',
+      type: 'confirm'
+    }
+  ]).then((ans) => {
+    if (ans.confirm) {
+      console.log('\nGoodbye!\n'.cyan);
+      connection.end();
+    } else {
+      startApp();
+    }
+  })
+}
+
+
+function updateDataQTY(id, qty, total, newSales) {
+  connection.query(`UPDATE products SET quantity=${qty}, product_sales=${newSales} WHERE id=${id}`, (err, res) => {
+    if (err) throw err;
+  })
+}
