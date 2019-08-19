@@ -10,7 +10,6 @@
 ## View Sharable link below!!
 
 https://drive.google.com/file/d/1ywZBqj9r0Xq3aACf4l2ThgrP_ih_W-Ge/view
-<<<<<<< HEAD
 
 ## Dependencies used in this bamazone App:
     * ascii-table
@@ -49,5 +48,4 @@ This application implements a simple command line based storefront using the npm
       * However, if there is not enough of the product in stock, it will tell the user that there isn't enough of the product.
       * If the purchase goes through, it updates the stock quantity to reflect the purchase.
       * It will also update the product sales in the department table. 
-=======
->>>>>>> f48b57137ce3a36a13a841bbc4ac9197750949ca
+
