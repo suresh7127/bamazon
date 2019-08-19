@@ -40,7 +40,7 @@ This application implements a simple command line based storefront using the npm
     * Prints the products in the store.
     * Prompts customer which product they would like to purchase by ID number.
     * Asks for the quantity.
-    *Type in the ID number of the item you'd like to buy: 
+    * Type in the ID number of the item you'd like to buy: 
     * How many units would you like to buy? 
     * Please Enter your Credit Card # 
     * Are you sure you want to make this purchase? y/n
