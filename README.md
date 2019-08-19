@@ -1,3 +1,3 @@
 # bamazon
-![Word Guess Cli](bamazone1.jpg)
-![Word Guess Cli](bamazone2.jpg)
+![Word Guess Cli](banazone1.jpg)
+![Word Guess Cli](banazone2.jpg)
