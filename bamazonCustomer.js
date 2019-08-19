@@ -1,10 +1,10 @@
-const mysql = require('mysql');
-const colors = require('colors');
-const inquirer = require('inquirer');
-const chalk = require('chalk');
-const AsciiTable = require('ascii-table');
+var mysql = require('mysql');
+var colors = require('colors');
+var inquirer = require('inquirer');
+var chalk = require('chalk');
+var AsciiTable = require('ascii-table');
 
-const connection = mysql.createConnection({
+var connection = mysql.createConnection({
   host: 'localhost',
   port: '3306',
   user: 'root',
@@ -12,15 +12,15 @@ const connection = mysql.createConnection({
   database: 'bamazon_db'
 })
 
-startApp();
+productInfo();
 
 
-function startApp() {
-  let table = new AsciiTable();
+function productInfo() {
+  var table = new AsciiTable();
   table.setHeading('ID', 'Description', 'Price', 'Quantity');
 
-  connection.query('SELECT * FROM products WHERE quantity>0', (err, res) => {
-    console.log(`\n       Items available for purchase:`.cyan);
+  connection.query("SELECT * FROM products WHERE quantity>0", (err, res) => {
+    console.log(`\n Suffient items available for purchase:`.cyan);
     res.forEach((product) => {
       table.addRow(product.id, product.description, product.price, product.quantity);
     })
@@ -35,7 +35,7 @@ function pickItem() {
   inquirer.prompt([
     {
       name: `id`,
-      message: `Type in the ID number of the item you'd like to buy:`.cyan,
+      message: `What is the ID number of the item you'd like to buy:`.cyan,
       validate: (value) => !isNaN(value)
     },
     {
@@ -57,17 +57,17 @@ function itemPicked(id, qty) {
     }
 
     if (qty > res[0].quantity) {
-      console.log(`\nInsufficient Quantity, try again...\n`.red);
+      console.log(`\nWe do not have sufficient Quantity, try again...\n`.red);
       setTimeout(pickItem, 500);
     } else {
       if (qty == 1) {
         console.log(`\nYou have selected ${qty} ${res[0].description} for $${res[0].price}.`.green);
-        let total = qty * res[0].price;
+        var total = qty * res[0].price;
         console.log(`Your total amount due is: $${total}.\n`);
         buyItem(id, res[0].quantity, qty, total, res[0].product_sales);
       } else if (qty > 1) {
         console.log(`\nYou have selected ${qty} ${res[0].description} for $${res[0].price} each.`.green);
-        let total = qty * res[0].price;
+        var total = qty * res[0].price;
         console.log(`Your total amount due is: $${total}.\n`);
         buyItem(id, res[0].quantity, qty, total, res[0].product_sales);
       }
@@ -77,8 +77,8 @@ function itemPicked(id, qty) {
 
 
 function buyItem(id, itemQty, customerQty, total, productSales) {
-  const newQty = itemQty - customerQty;
-  const newSales = productSales + total;
+  var newQty = itemQty - customerQty;
+  var newSales = productSales + total;
   inquirer.prompt([
     {
       name: `payment`,
@@ -93,10 +93,10 @@ function buyItem(id, itemQty, customerQty, total, productSales) {
   ]).then((ans) => {
     if (ans.confirm) {
       console.log(`\nCongratulations your new item successfully purchased.\n`.green);
-      updateDataQTY(id, newQty, total, newSales);
+      updateProduct(id, newQty, total, newSales);
       setTimeout(restart, 1000);
     } else {
-      console.log(`\nOooops.\n`.green);
+      console.log(`\nSorry! See you again!.\n`.green);
       restart();
     }
   })
@@ -115,13 +115,13 @@ function restart() {
       console.log('\nGoodbye!\n'.cyan);
       connection.end();
     } else {
-      startApp();
+      productInfo();
     }
   })
 }
 
 
-function updateDataQTY(id, qty, total, newSales) {
+function updateProduct(id, qty, total, newSales) {
   connection.query(`UPDATE products SET quantity=${qty}, product_sales=${newSales} WHERE id=${id}`, (err, res) => {
     if (err) throw err;
   })
