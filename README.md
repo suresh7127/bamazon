@@ -10,14 +10,13 @@
 ## View Sharable link below!!
 
 https://drive.google.com/file/d/1ywZBqj9r0Xq3aACf4l2ThgrP_ih_W-Ge/view
-<<<<<<< HEAD
+
 
 ## Dependencies used in this bamazone App:
     * ascii-table
     * chalk
     * colors
     * inquirer
-    * is-letter
     * mysql
 
         In this activity, i created  a Amazon-like storefront using  the MySQL. The app will take in orders 
