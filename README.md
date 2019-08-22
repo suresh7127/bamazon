@@ -19,7 +19,7 @@ https://drive.google.com/file/d/1ywZBqj9r0Xq3aACf4l2ThgrP_ih_W-Ge/view
     * inquirer
     * mysql
 
-        In this activity, i created  a Amazon-like storefront using  the MySQL. The app will take in orders 
+    In this activity, i created  a Amazon-like storefront using  the MySQL. The app will take in orders 
     from customers and deplete stock from the store's inventory.
 
 ## Description
@@ -30,9 +30,9 @@ This application implements a simple command line based storefront using the npm
 1. Clone the repository. 
 2. Run command `npm install` in Terminal.
 3. Set up MySQL database.
-4. Choose an interface below.
 
-### What Each JavaScript Does
+
+### What JavaScript does!!
 
 1. `bamazonCustomer.js`
 
@@ -48,5 +48,4 @@ This application implements a simple command line based storefront using the npm
       * However, if there is not enough of the product in stock, it will tell the user that there isn't enough of the product.
       * If the purchase goes through, it updates the stock quantity to reflect the purchase.
       * It will also update the product sales in the department table. 
-=======
->>>>>>> f48b57137ce3a36a13a841bbc4ac9197750949ca
+
